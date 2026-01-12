@@ -1,0 +1,12 @@
+## Columns ##
+Log_Id: Table Index
+Machine_Id:Foreign key with "Machines" Table
+Production_datetime: Date & Time when the event is registered
+Shift_Id: Automatically filled according to Start_Time & End_Time of "Shift" table and "Production_datetime"
+Operator_Id: Foreign key with "Operators" Table
+Good_Units/Bad_Units: OK/NOK Products at the moment of the event registration
+Cycle_time_ms: Production duration in ms
+Temperature_c: Value of the sensor "c"
+Energy_kwh: Energy consumption
+Error_code: In case of production error, the code is registered as an event
+Comments: Manual comments added by the operator
