@@ -1,15 +1,20 @@
-## Production Log - Data Simulation ##
+# Production Log - Data Simulation ##
 import pyodbc
 
-def machines():
+
+def connect():
     conn = pyodbc.connect(
         "DRIVER={ODBC Driver 17 for SQL Server};"
         "SERVER=LAPTOP-CDN63N6Q\\SQLEXPRESS;"
         "DATABASE=Dexion_Laubach_Database;"
         "Trusted_Connection=yes;"
     )
-
     cursor = conn.cursor()
+    return cursor
+
+
+def machines():
+    cursor = connect()
     cursor.execute("SELECT * FROM Machines")
 
     machine_dict = {}
@@ -29,13 +34,7 @@ def machines():
 
 
 def shifts():
-    conn = pyodbc.connect(
-        "DRIVER={ODBC Driver 17 for SQL Server};"
-        "SERVER=LAPTOP-CDN63N6Q\\SQLEXPRESS;"
-        "DATABASE=Dexion_Laubach_Database;"
-        "Trusted_Connection=yes;"
-    )
-    cursor = conn.cursor()
+    cursor = connect()
     cursor.execute("SELECT * FROM Shift")
 
     shift_dict = {}
@@ -53,13 +52,7 @@ def shifts():
 
 
 def operators():
-    conn = pyodbc.connect(
-        "DRIVER={ODBC Driver 17 for SQL Server};"
-        "SERVER=LAPTOP-CDN63N6Q\\SQLEXPRESS;"
-        "DATABASE=Dexion_Laubach_Database;"
-        "Trusted_Connection=yes;"
-    )
-    cursor = conn.cursor()
+    cursor = connect()
     cursor.execute("SELECT * FROM Operators")
 
     operators_dict = {}
@@ -73,3 +66,32 @@ def operators():
         operators_dict[index] = operator
 
     return operators_dict
+
+
+def write_db(machine_id, production_datetime, shift_id, operator_id,
+             good_units, bad_units, cycle, temperature, energy):
+    conn = pyodbc.connect(
+        "DRIVER={ODBC Driver 17 for SQL Server};"
+        "SERVER=LAPTOP-CDN63N6Q\\SQLEXPRESS;"
+        "DATABASE=Dexion_Laubach_Database;"
+        "Trusted_Connection=yes;"
+    )
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO Production_log (
+            Machine_id,
+            Production_datetime,
+            Shift_id,
+            Operator_id,
+            Good_units,
+            Bad_units,
+            Cycle_time_ms,
+            Temperature_c,
+            Energy_kwh
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, machine_id, production_datetime, shift_id, operator_id,
+                   good_units, bad_units, cycle, temperature, energy)
+
+    conn.commit()
+    conn.close()
